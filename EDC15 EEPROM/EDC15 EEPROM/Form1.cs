@@ -48,6 +48,8 @@ namespace EDC15_EEPROM
 
                 SetByte(0x012E, b1);
                 SetByte(0x012F, b2);
+                SetByte(0x0160, b1);
+                SetByte(0x0161, b2);
 
                 textBox1.ForeColor = Color.Cyan;
             }
