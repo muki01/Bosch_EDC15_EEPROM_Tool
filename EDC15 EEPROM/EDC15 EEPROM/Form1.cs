@@ -153,29 +153,6 @@ namespace EDC15_EEPROM
             this.panel1.MouseUp += panel1_MouseUp;
         }
 
-        private void btnAbout_Click(object sender, EventArgs e)
-        {
-            string aboutText =
-            "Program Name: EDC15 24C04 EEPROM Tool\n\n" +
-            "Developed by: Muki\n" +
-            "Email: muksin.muksin04@gmail.com\n" +
-            "GitHub: https://github.com/muki01\n\n" +
-            "Description:\n" +
-            "This tool is specifically designed for Bosch EDC15 ECUs \n" +
-            "equipped with 24C04 EEPROM (512 bytes).\n\n" +
-            "Functions:\n" +
-            "* IMMO ON/OFF Patcher\n" +
-            "* Odometer (KM) Calculation & Adjustment\n" +
-            "* PIN Code Extraction\n\n" +
-            "Warning: Only use with 512-byte original EEPROM dumps.";
-            MessageBox.Show(
-                aboutText,
-                "About",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
-        }
-
         private void btnOpenFile_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -221,16 +198,6 @@ namespace EDC15_EEPROM
                     }
                 }
             }
-        }
-
-        private void btnExitApp_Click(object sender, EventArgs e)
-        {
-            Application.Exit();
-        }
-
-        private void btnMinimizeApp_Click(object sender, EventArgs e)
-        {
-            this.WindowState = FormWindowState.Minimized;
         }
 
         private void btnSaveFile_Click(object sender, EventArgs e)
@@ -313,6 +280,16 @@ namespace EDC15_EEPROM
             }
         }
 
+        private void btnExitApp_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void btnMinimizeApp_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+        
         private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
         {
             if (tglImmoSwitch.Checked == true) label15.Text = "IMMO ON";
@@ -336,6 +313,29 @@ namespace EDC15_EEPROM
         }
 
         private void panel1_MouseUp(object sender, MouseEventArgs e) { dragging = false; }
+
+        private void btnAbout_Click(object sender, EventArgs e)
+        {
+            string aboutText =
+            "Program Name: EDC15 24C04 EEPROM Tool\n\n" +
+            "Developed by: Muki\n" +
+            "Email: muksin.muksin04@gmail.com\n" +
+            "GitHub: https://github.com/muki01\n\n" +
+            "Description:\n" +
+            "This tool is specifically designed for Bosch EDC15 ECUs \n" +
+            "equipped with 24C04 EEPROM (512 bytes).\n\n" +
+            "Functions:\n" +
+            "* IMMO ON/OFF Patcher\n" +
+            "* Odometer (KM) Calculation & Adjustment\n" +
+            "* PIN Code Extraction\n\n" +
+            "Warning: Only use with 512-byte original EEPROM dumps.";
+            MessageBox.Show(
+                aboutText,
+                "About",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information
+            );
+        }
 
         private void btnDonate_Click(object sender, EventArgs e)
         {
