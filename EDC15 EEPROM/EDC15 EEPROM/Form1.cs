@@ -65,6 +65,12 @@ namespace EDC15_EEPROM
             else textBox2.ForeColor = Color.Red;
         }
 
+        private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
+        {
+            if (tglImmoSwitch.Checked == true) label15.Text = "IMMO ON";
+            else label15.Text = "IMMO OFF";
+        }
+
         private void SetByte(int offset, byte value)
         {
             if (modifiedData != null && offset >= 0 && offset < modifiedData.Length)
@@ -288,12 +294,6 @@ namespace EDC15_EEPROM
         private void btnMinimizeApp_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
-        }
-        
-        private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
-        {
-            if (tglImmoSwitch.Checked == true) label15.Text = "IMMO ON";
-            else label15.Text = "IMMO OFF";
         }
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
