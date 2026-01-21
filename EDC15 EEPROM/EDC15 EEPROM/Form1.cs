@@ -315,29 +315,9 @@ namespace EDC15_EEPROM
 
         private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
         {
-            if (modifiedData == null) return;
-
-            byte currentVal = modifiedData[0x01B0];
-
-            if (currentVal == 0x73)
-            {
-                SetByte(0x01B0, 0x60);
-                SetByte(0x01DE, 0x60);
-            }
-            else
-            {
-                SetByte(0x01B0, 0x73);
-                SetByte(0x01DE, 0x73);
-            }
-
-            UpdateImmoStatus();
+            if (tglImmoSwitch.Checked == true) label15.Text = "IMMO ON";
+            else label15.Text = "IMMO OFF";
         }
-
-        // private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
-        // {
-        //     if (tglImmoSwitch.Checked == true) label15.Text = "IMMO ON";
-        //     else label15.Text = "IMMO OFF";
-        // }
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
