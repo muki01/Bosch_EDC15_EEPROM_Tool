@@ -84,7 +84,7 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void UpdateImmoStatus()
+        private void GetImmoStatus()
         {
             if (modifiedData == null) return;
 
@@ -109,7 +109,7 @@ namespace EDC15_EEPROM
             rjToggleButton1.CheckedChanged += rjToggleButton1_CheckedChanged;
         }
 
-        private void UpdateKilometer()
+        private void GetKilometer()
         {
             if (modifiedData == null || modifiedData.Length <= 0x01C2)
             {
@@ -131,7 +131,7 @@ namespace EDC15_EEPROM
             label13.Text = km.ToString("N0") + " KM";
         }
 
-        private void UpdatePinCode()
+        private void GetPinCode()
         {
             if (modifiedData == null || modifiedData.Length <= 0x012F)
             {
@@ -163,7 +163,7 @@ namespace EDC15_EEPROM
             this.panel1.MouseUp += panel1_MouseUp;
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void btnAbout_Click(object sender, EventArgs e)
         {
             string aboutText =
     "Program Name: EDC15 24C04 EEPROM Tool\n\n" +
@@ -186,7 +186,7 @@ namespace EDC15_EEPROM
             );
         }
 
-        private void rjButton1_Click(object sender, EventArgs e)
+        private void btnOpenFile_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -240,17 +240,17 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void rjButton2_Click(object sender, EventArgs e)
+        private void btnExitApp_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void rjButton3_Click(object sender, EventArgs e)
+        private void btnMinimizeApp_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
         }
 
-        private void rjButton4_Click(object sender, EventArgs e)
+        private void btnSaveFile_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Binary Files (*.bin)|*.bin";
@@ -262,7 +262,7 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void rjToggleButton1_CheckedChanged(object sender, EventArgs e)
+        private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
         {
             if (modifiedData == null) return;
 
@@ -300,13 +300,12 @@ namespace EDC15_EEPROM
 
         private void panel1_MouseUp(object sender, MouseEventArgs e) { dragging = false; }
 
-        private void rjButton5_Click(object sender, EventArgs e)
+        private void btnDonate_Click(object sender, EventArgs e)
         {
             string url = "https://www.paypal.com/donate/?hosted_button_id=SAAH5GHAH6T72";
 
             try
             {
-                // Tarayıcıda linki açar
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = url,
@@ -319,7 +318,7 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void picGithubLink_Click(object sender, EventArgs e)
         {
             string githubUrl = "https://github.com/muki01";
 
