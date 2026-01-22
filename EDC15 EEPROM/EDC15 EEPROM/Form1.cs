@@ -60,9 +60,6 @@ namespace EDC15_EEPROM
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             string cleanValue = new string(textBox2.Text.Where(char.IsDigit).ToArray());
-
-            if (textBox2.Text.Length > 0) textBox2.ForeColor = Color.Cyan;
-            else textBox2.ForeColor = Color.Red;
         }
 
         private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
@@ -121,9 +118,10 @@ namespace EDC15_EEPROM
 
             double km = kmValue / 100.0;
 
-            textBox2.Text = km.ToString("N0") + " KM";
+            textBox2.Text = km.ToString("0");
             label13.Text = km.ToString("N0") + " KM";
             textBox2.ForeColor = Color.Cyan;
+            label3.ForeColor = Color.White;
         }
 
         private void GetPinCode()
@@ -232,7 +230,7 @@ namespace EDC15_EEPROM
             }
             else
             {
-                MessageBox.Show("Invalid PIN format!");
+                MessageBox.Show("Invalid PIN format!", "Incorrect Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -248,7 +246,7 @@ namespace EDC15_EEPROM
             }
             else
             {
-                MessageBox.Show("Invalid mileage format!");
+                MessageBox.Show("Invalid kilometer format!", "Incorrect Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

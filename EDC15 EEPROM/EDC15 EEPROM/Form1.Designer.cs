@@ -42,9 +42,9 @@
             this.btnAbout = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label10 = new System.Windows.Forms.Label();
@@ -61,6 +61,7 @@
             this.btnDonate = new EDC15_EEPROM.RJControls.RJButton();
             this.btnSaveFile = new EDC15_EEPROM.RJControls.RJButton();
             this.btnOpenFile = new EDC15_EEPROM.RJControls.RJButton();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -212,38 +213,15 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(60)))));
+            this.panel2.Controls.Add(this.label3);
+            this.panel2.Controls.Add(this.textBox2);
             this.panel2.Controls.Add(this.label13);
             this.panel2.Controls.Add(this.label7);
             this.panel2.Controls.Add(this.label14);
-            this.panel2.Controls.Add(this.textBox2);
             this.panel2.Location = new System.Drawing.Point(475, 148);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(200, 150);
             this.panel2.TabIndex = 16;
-            // 
-            // label13
-            // 
-            this.label13.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.ForeColor = System.Drawing.Color.LightGray;
-            this.label13.Location = new System.Drawing.Point(110, 113);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(13, 13);
-            this.label13.TabIndex = 21;
-            this.label13.Text = "0";
-            this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.ForeColor = System.Drawing.Color.LightGray;
-            this.label14.Location = new System.Drawing.Point(30, 113);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(82, 13);
-            this.label14.TabIndex = 20;
-            this.label14.Text = "Original Value:";
             // 
             // textBox2
             // 
@@ -253,8 +231,8 @@
             this.textBox2.Enabled = false;
             this.textBox2.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox2.ForeColor = System.Drawing.Color.White;
-            this.textBox2.Location = new System.Drawing.Point(3, 52);
-            this.textBox2.MaxLength = 10;
+            this.textBox2.Location = new System.Drawing.Point(3, 50);
+            this.textBox2.MaxLength = 7;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(194, 43);
             this.textBox2.TabIndex = 4;
@@ -262,6 +240,30 @@
             this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             this.textBox2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnlyNumbers_KeyPress);
+            // 
+            // label13
+            // 
+            this.label13.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.ForeColor = System.Drawing.Color.LightGray;
+            this.label13.Location = new System.Drawing.Point(110, 120);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(34, 13);
+            this.label13.TabIndex = 21;
+            this.label13.Text = "0 KM";
+            this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.ForeColor = System.Drawing.Color.LightGray;
+            this.label14.Location = new System.Drawing.Point(30, 120);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(82, 13);
+            this.label14.TabIndex = 20;
+            this.label14.Text = "Original Value:";
             // 
             // textBox1
             // 
@@ -271,7 +273,7 @@
             this.textBox1.Enabled = false;
             this.textBox1.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox1.ForeColor = System.Drawing.Color.White;
-            this.textBox1.Location = new System.Drawing.Point(3, 52);
+            this.textBox1.Location = new System.Drawing.Point(3, 50);
             this.textBox1.MaxLength = 5;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(194, 43);
@@ -298,7 +300,7 @@
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label10.ForeColor = System.Drawing.Color.LightGray;
-            this.label10.Location = new System.Drawing.Point(110, 113);
+            this.label10.Location = new System.Drawing.Point(110, 120);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(13, 13);
             this.label10.TabIndex = 14;
@@ -309,7 +311,7 @@
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.ForeColor = System.Drawing.Color.LightGray;
-            this.label9.Location = new System.Drawing.Point(30, 113);
+            this.label9.Location = new System.Drawing.Point(30, 120);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(82, 13);
             this.label9.TabIndex = 13;
@@ -341,7 +343,7 @@
             // 
             // label15
             // 
-            this.label15.Location = new System.Drawing.Point(0, 41);
+            this.label15.Location = new System.Drawing.Point(0, 40);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(200, 19);
             this.label15.TabIndex = 23;
@@ -353,7 +355,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.ForeColor = System.Drawing.Color.LightGray;
-            this.label11.Location = new System.Drawing.Point(110, 113);
+            this.label11.Location = new System.Drawing.Point(110, 120);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(23, 13);
             this.label11.TabIndex = 16;
@@ -364,7 +366,7 @@
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.ForeColor = System.Drawing.Color.LightGray;
-            this.label12.Location = new System.Drawing.Point(30, 113);
+            this.label12.Location = new System.Drawing.Point(30, 120);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(82, 13);
             this.label12.TabIndex = 15;
@@ -385,7 +387,7 @@
             // 
             this.tglImmoSwitch.Cursor = System.Windows.Forms.Cursors.Hand;
             this.tglImmoSwitch.Enabled = false;
-            this.tglImmoSwitch.Location = new System.Drawing.Point(70, 67);
+            this.tglImmoSwitch.Location = new System.Drawing.Point(70, 65);
             this.tglImmoSwitch.MinimumSize = new System.Drawing.Size(45, 22);
             this.tglImmoSwitch.Name = "tglImmoSwitch";
             this.tglImmoSwitch.OffBackColor = System.Drawing.Color.DimGray;
@@ -492,6 +494,17 @@
             this.btnOpenFile.UseVisualStyleBackColor = false;
             this.btnOpenFile.Click += new System.EventHandler(this.btnOpenFile_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.Color.DimGray;
+            this.label3.Location = new System.Drawing.Point(79, 91);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(42, 25);
+            this.label3.TabIndex = 22;
+            this.label3.Text = "KM";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
@@ -546,7 +559,6 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Label label10;
@@ -564,6 +576,8 @@
         private System.Windows.Forms.Label label15;
         private RJControls.RJButton btnDonate;
         private System.Windows.Forms.PictureBox picGithubLink;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label3;
     }
 }
 
