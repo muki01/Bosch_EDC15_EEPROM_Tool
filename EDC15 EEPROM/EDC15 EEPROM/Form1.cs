@@ -35,43 +35,37 @@ namespace EDC15_EEPROM
             pnl.Region = new Region(path);
         }
 
+        private void OnlyNumbers_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
         // LOGIN CODE (TextBox1)
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if (modifiedData == null || textBox1.Text.Length < 1) return;
-
-            if (ushort.TryParse(textBox1.Text, out ushort newPin))
+            if (!textBox1.Text.StartsWith("0"))
             {
-                // Save in Little Endian format (e.g., 07832 -> Hex -> Byte Swap)
-                byte b1 = (byte)(newPin & 0xFF);
-                byte b2 = (byte)((newPin >> 8) & 0xFF);
-
-                SetByte(0x012E, b1);
-                SetByte(0x012F, b2);
-
-                textBox1.ForeColor = Color.Cyan;
+                textBox1.Text = "0" + textBox1.Text.TrimStart('0');
+                textBox1.SelectionStart = textBox1.Text.Length;
             }
+
+            if (textBox1.Text.Length == 5) textBox1.ForeColor = Color.Cyan;
+            else textBox1.ForeColor = Color.Red;
         }
 
         // ODOMETER (TextBox2)
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-            if (modifiedData == null) return;
-
-            // Just take the numbers (remove the KM text)
             string cleanValue = new string(textBox2.Text.Where(char.IsDigit).ToArray());
+        }
 
-            if (uint.TryParse(cleanValue, out uint km))
-            {
-                uint rawVal = km * 100; // The equivalent in the file is (KM * 100)
-
-                SetByte(0x01BF, (byte)(rawVal & 0xFF));
-                SetByte(0x01C0, (byte)((rawVal >> 8) & 0xFF));
-                SetByte(0x01C1, (byte)((rawVal >> 16) & 0xFF));
-                SetByte(0x01C2, (byte)((rawVal >> 24) & 0xFF));
-
-                textBox2.ForeColor = Color.Cyan;
-            }
+        private void tglImmoSwitch_CheckedChanged(object sender, EventArgs e)
+        {
+            if (tglImmoSwitch.Checked == true) label15.Text = "IMMO ON";
+            else label15.Text = "IMMO OFF";
         }
 
         private void SetByte(int offset, byte value)
@@ -82,39 +76,38 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void UpdateImmoStatus()
+        private void GetImmoStatus()
         {
             if (modifiedData == null) return;
 
-            rjToggleButton1.CheckedChanged -= rjToggleButton1_CheckedChanged;
+            tglImmoSwitch.CheckedChanged -= tglImmoSwitch_CheckedChanged;
+
+            tglImmoSwitch.OnBackColor = Color.FromArgb(46, 204, 113); // Green
+            tglImmoSwitch.OffBackColor = Color.FromArgb(231, 76, 60); // Red
+            tglImmoSwitch.OnToggleColor = Color.FromArgb(224, 224, 224);
+            tglImmoSwitch.OffToggleColor = Color.FromArgb(224, 224, 224);
+
             byte val1 = modifiedData[0x01B0];
             byte val2 = modifiedData[0x01DE];
 
             if (val1 == 0x73 && val2 == 0x73)
             {
                 label15.Text = "IMMO ON";
-                rjToggleButton1.OnBackColor = Color.FromArgb(46, 204, 113); // Green
-                rjToggleButton1.OnToggleColor = Color.FromArgb(224, 224, 224); // Green
-                if (rjToggleButton1.Checked != true) rjToggleButton1.Checked = true;
+                label11.Text = "ON";
+                tglImmoSwitch.Checked = true;
             }
             else if (val1 == 0x60 && val2 == 0x60)
             {
                 label15.Text = "IMMO OFF";
-                rjToggleButton1.OffBackColor = Color.FromArgb(231, 76, 60); // Red
-                rjToggleButton1.OffToggleColor = Color.FromArgb(224, 224, 224); // Red
-                if (rjToggleButton1.Checked != false) rjToggleButton1.Checked = false;
+                label11.Text = "OFF";
+                tglImmoSwitch.Checked = false;
             }
-            rjToggleButton1.CheckedChanged += rjToggleButton1_CheckedChanged;
+            tglImmoSwitch.CheckedChanged += tglImmoSwitch_CheckedChanged;
         }
 
-        private void UpdateKilometer()
+        private void GetKilometer()
         {
-            if (modifiedData == null || modifiedData.Length <= 0x01C2)
-            {
-                label13.Text = "Unknown";
-                textBox2.Text = "Unknown";
-                return;
-            }
+            if (modifiedData == null) return;
 
             uint kmValue = (uint)(
                 modifiedData[0x01BF] |
@@ -125,11 +118,13 @@ namespace EDC15_EEPROM
 
             double km = kmValue / 100.0;
 
-            textBox2.Text = km.ToString("N0") + " KM";
+            textBox2.Text = km.ToString("0");
             label13.Text = km.ToString("N0") + " KM";
+            textBox2.ForeColor = Color.Cyan;
+            label3.ForeColor = Color.White;
         }
 
-        private void UpdatePinCode()
+        private void GetPinCode()
         {
             if (modifiedData == null || modifiedData.Length <= 0x012F)
             {
@@ -146,6 +141,7 @@ namespace EDC15_EEPROM
             // 5-digit format (adds zeros at the beginning)
             textBox1.Text = pinDecimal.ToString("D5");
             label10.Text = pinDecimal.ToString("D5");
+            textBox1.ForeColor = Color.Cyan;
         }
 
         public Form1()
@@ -161,30 +157,7 @@ namespace EDC15_EEPROM
             this.panel1.MouseUp += panel1_MouseUp;
         }
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            string aboutText =
-    "Program Name: EDC15 24C04 EEPROM Tool\n\n" +
-    "Developed by: Muki\n" +
-    "Email: muksin.muksin04@gmail.com\n" +
-    "GitHub: https://github.com/muki01\n\n" +
-    "Description:\n" +
-    "This tool is specifically designed for Bosch EDC15 ECUs \n" +
-    "equipped with 24C04 EEPROM (512 bytes).\n\n" +
-    "Functions:\n" +
-    "* IMMO ON/OFF Patcher\n" +
-    "* Odometer (KM) Calculation & Adjustment\n" +
-    "* PIN Code Extraction\n\n" +
-    "Warning: Only use with 512-byte original EEPROM dumps.";
-            MessageBox.Show(
-                aboutText,
-                "About",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
-        }
-
-        private void rjButton1_Click(object sender, EventArgs e)
+        private void btnOpenFile_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
@@ -199,36 +172,29 @@ namespace EDC15_EEPROM
                     if (fileInfo.Length != 512)
                     {
                         MessageBox.Show($"Error: Selected file is {fileInfo.Length} bytes.\nEDC15 EEPROM files must be exactly 512 bytes!",
-                 "Invalid File Size",
-                 MessageBoxButtons.OK,
-                 MessageBoxIcon.Error);
-                        return;
+                            "Invalid File Size",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                            return;
                     }
 
                     try
                     {
                         openedFilePath = ofd.FileName;
                         originalData = File.ReadAllBytes(openedFilePath);
-
                         modifiedData = (byte[])originalData.Clone(); // Create Clone
 
-                        label3.Text = Path.GetFileName(openedFilePath); // Update File Name
-                        label4.Text = openedFilePath;                   // Update File Path
+                        lblFileName.Text = Path.GetFileName(openedFilePath); // Update File Name
+                        lblFilePath.Text = openedFilePath;                   // Update File Path
 
-                        rjButton4.Enabled = true;       // Enable Save button
+                        GetImmoStatus();
+                        GetKilometer();
+                        GetPinCode();
+
+                        btnSaveFile.Enabled = true;     // Enable Save button
                         textBox1.Enabled = true;        // Enable Login box
                         textBox2.Enabled = true;        // Enable Odometer box
-                        rjToggleButton1.Enabled = true;  // Enable IMMO button
-
-                        UpdateImmoStatus();
-                        UpdateKilometer();
-                        UpdatePinCode();
-
-                        byte val1 = originalData[0x01B0];
-                        byte val2 = originalData[0x01DE];
-                        if (val1 == 0x73 && val2 == 0x73) label11.Text = "ON";
-                        else if (val1 == 0x60 && val2 == 0x60) label11.Text = "OFF";
-                        else label11.Text = "Mixed";
+                        tglImmoSwitch.Enabled = true;   // Enable IMMO button
                     }
                     catch (Exception ex)
                     {
@@ -238,46 +204,94 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void rjButton2_Click(object sender, EventArgs e)
+        private void btnSaveFile_Click(object sender, EventArgs e)
         {
-            Application.Exit();
-        }
+            if (modifiedData == null)
+            {
+                MessageBox.Show("Please open a file first!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-        private void rjButton3_Click(object sender, EventArgs e)
-        {
-            this.WindowState = FormWindowState.Minimized;
-        }
 
-        private void rjButton4_Click(object sender, EventArgs e)
-        {
+            // --- 1. PROCESS PIN CODE ---
+            if (textBox1.Text.Length != 5)
+            {
+                MessageBox.Show("The PIN code must be exactly 5 digits long (0XXXX)!", "Incorrect Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (ushort.TryParse(textBox1.Text, out ushort newPin))
+            {
+                byte b1 = (byte)(newPin & 0xFF);
+                byte b2 = (byte)((newPin >> 8) & 0xFF);
+                SetByte(0x012E, b1);
+                SetByte(0x012F, b2);
+                SetByte(0x0160, b1);
+                SetByte(0x0161, b2);
+            }
+            else
+            {
+                MessageBox.Show("Invalid PIN format!", "Incorrect Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // --- 2. PROCESS KILOMETER ---
+            string cleanValue = new string(textBox2.Text.Where(char.IsDigit).ToArray());
+            if (uint.TryParse(cleanValue, out uint km))
+            {
+                uint rawVal = km * 100;
+                SetByte(0x01BF, (byte)(rawVal & 0xFF));
+                SetByte(0x01C0, (byte)((rawVal >> 8) & 0xFF));
+                SetByte(0x01C1, (byte)((rawVal >> 16) & 0xFF));
+                SetByte(0x01C2, (byte)((rawVal >> 24) & 0xFF));
+            }
+            else
+            {
+                MessageBox.Show("Invalid kilometer format!", "Incorrect Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // --- 3. PROCESS IMMO STATUS ---
+            if (tglImmoSwitch.Checked)
+            {
+                SetByte(0x01B0, 0x73);
+                SetByte(0x01DE, 0x73);
+            }
+            else
+            {
+                SetByte(0x01B0, 0x60);
+                SetByte(0x01DE, 0x60);
+            }
+
+            // --- 4. SAVE FILE ---
             SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = "EDC15_Modified.bin";
             sfd.Filter = "Binary Files (*.bin)|*.bin";
             sfd.Title = "Save the modified file.";
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                File.WriteAllBytes(sfd.FileName, modifiedData);
+                try
+                {
+                    File.WriteAllBytes(sfd.FileName, modifiedData);
+                    MessageBox.Show("All changes have been successfully saved!",
+                                    "Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Saving error: " + ex.Message);
+                }
+
             }
         }
 
-        private void rjToggleButton1_CheckedChanged(object sender, EventArgs e)
+        private void btnExitApp_Click(object sender, EventArgs e)
         {
-            if (modifiedData == null) return;
+            Application.Exit();
+        }
 
-            byte currentVal = modifiedData[0x01B0];
-
-            if (currentVal == 0x73)
-            {
-                SetByte(0x01B0, 0x60);
-                SetByte(0x01DE, 0x60);
-            }
-            else
-            {
-                SetByte(0x01B0, 0x73);
-                SetByte(0x01DE, 0x73);
-            }
-
-            UpdateImmoStatus();
+        private void btnMinimizeApp_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
         }
 
         private void panel1_MouseDown(object sender, MouseEventArgs e)
@@ -298,13 +312,35 @@ namespace EDC15_EEPROM
 
         private void panel1_MouseUp(object sender, MouseEventArgs e) { dragging = false; }
 
-        private void rjButton5_Click(object sender, EventArgs e)
+        private void btnAbout_Click(object sender, EventArgs e)
+        {
+            string aboutText =
+            "Program Name: EDC15 24C04 EEPROM Tool\n\n" +
+            "Developed by: Muki\n" +
+            "Email: muksin.muksin04@gmail.com\n" +
+            "GitHub: https://github.com/muki01\n\n" +
+            "Description:\n" +
+            "This tool is specifically designed for Bosch EDC15 ECUs \n" +
+            "equipped with 24C04 EEPROM (512 bytes).\n\n" +
+            "Functions:\n" +
+            "* IMMO ON/OFF Patcher\n" +
+            "* Odometer (KM) Calculation & Adjustment\n" +
+            "* PIN Code Extraction\n\n" +
+            "Warning: Only use with 512-byte original EEPROM dumps.";
+            MessageBox.Show(
+                aboutText,
+                "About",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information
+            );
+        }
+
+        private void btnDonate_Click(object sender, EventArgs e)
         {
             string url = "https://www.paypal.com/donate/?hosted_button_id=SAAH5GHAH6T72";
 
             try
             {
-                // Tarayıcıda linki açar
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = url,
@@ -317,7 +353,7 @@ namespace EDC15_EEPROM
             }
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void picGithubLink_Click(object sender, EventArgs e)
         {
             string githubUrl = "https://github.com/muki01";
 
