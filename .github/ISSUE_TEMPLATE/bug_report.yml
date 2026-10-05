@@ -1,0 +1,55 @@
+name: 🐛 Bug report
+description: Something in the program does not work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+
+        > ⚠️ **Do not attach EEPROM dumps here.** A dump contains the VIN, immobilizer ID and login code of a real car. If a dump is needed, say so and we will arrange a private way to send it.
+  - type: input
+    id: version
+    attributes:
+      label: Tool version
+      description: Shown next to the name in the title bar.
+      placeholder: e.g. v1.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: windows
+    attributes:
+      label: Windows version
+      options:
+        - Windows 11
+        - Windows 10
+    validations:
+      required: true
+  - type: input
+    id: ecu
+    attributes:
+      label: ECU
+      description: Bosch part number and VAG part number, if the bug happens with a particular dump.
+      placeholder: e.g. Bosch 0281010390, VAG 038906019FN, EDC15P+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead? Include the exact text of any message or warning.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the file ...
+        2. Change ...
+        3. Click Save File ...
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: A screenshot helps a lot. Hide the VIN and immobilizer ID if you prefer.

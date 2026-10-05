@@ -1,0 +1,74 @@
+name: 🚗 ECU report
+description: Tell us whether the tool works with your EDC15 ECU
+title: "[ECU] <Bosch part number> <vehicle>"
+labels: ["ecu-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Real-world reports show which EDC15 variants share the supported layout. Thank you! 🙌
+
+        > ⚠️ **Do not attach the dump.** It contains the VIN, immobilizer ID and login code of the car.
+  - type: input
+    id: bosch
+    attributes:
+      label: Bosch part number
+      description: Printed on the ECU label, starts with 0281.
+      placeholder: e.g. 0281010390
+    validations:
+      required: true
+  - type: input
+    id: vag
+    attributes:
+      label: VAG part number and ECU type
+      placeholder: e.g. 038906019FN, EDC15P+
+  - type: input
+    id: vehicle
+    attributes:
+      label: Vehicle
+      placeholder: Make, model, year and engine code (e.g. VW Golf IV 2002, ASZ)
+    validations:
+      required: true
+  - type: dropdown
+    id: eeprom
+    attributes:
+      label: EEPROM chip on the board
+      options:
+        - 24C04 (512 bytes)
+        - 95040 / 95080 / 95160
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result in the tool
+      options:
+        - ✅ The file opened and every value looks right
+        - ⚠️ The file opened, but some values look wrong
+        - ❌ The file was refused or shows "not recognised"
+    validations:
+      required: true
+  - type: checkboxes
+    id: values
+    attributes:
+      label: Values that were read correctly
+      options:
+        - label: Immobilizer status
+        - label: Mileage
+        - label: Login code
+        - label: VIN
+        - label: Immobilizer ID
+  - type: dropdown
+    id: car
+    attributes:
+      label: Did a saved file work in the car?
+      options:
+        - Not tried
+        - Yes
+        - No
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else worth knowing, such as warnings the tool showed or how the dump was read.

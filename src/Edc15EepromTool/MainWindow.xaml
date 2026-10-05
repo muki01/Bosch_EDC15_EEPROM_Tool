@@ -1,0 +1,683 @@
+<Window x:Class="Edc15EepromTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Edc15EepromTool.ViewModels"
+        xmlns:b="clr-namespace:Edc15EepromTool.Behaviors"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        Title="EDC15 EEPROM Tool"
+        Width="900" Height="580"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanMinimize"
+        Background="{DynamicResource BgBrush}"
+        Foreground="{DynamicResource TextBrush}"
+        FontFamily="{StaticResource UiFont}" FontSize="14"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        AllowDrop="True" Icon="Assets/app.ico">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="56" ResizeBorderThickness="0" GlassFrameThickness="0,0,0,1"
+                      CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenCommand}"/>
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding AboutCommand}"/>
+        <KeyBinding Key="Escape" Command="{Binding CloseOverlayCommand}"/>
+    </Window.InputBindings>
+
+    <Window.Resources>
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnDangerBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource DangerHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource DangerHoverBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+        </Style>
+
+        <!-- the large editable value in the middle of a card: plain text until it is hovered or focused -->
+        <Style x:Key="ValueInput" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="SelectionOpacity" Value="0.35"/>
+            <Setter Property="FontFamily" Value="{StaticResource DisplayFont}"/>
+            <Setter Property="FontSize" Value="36"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="62"/>
+            <Setter Property="MinWidth" Value="70"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14">
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource SurfaceRaisedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgBrush}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="b:InputAssist.HasError" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardHeader" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource DisplayFont}"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ChangedPill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="999"/>
+            <Setter Property="Padding" Value="9,2"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Background" Value="{DynamicResource AccentTintBrush}"/>
+        </Style>
+
+        <!-- the strip at the bottom of a card with the original value -->
+        <Style x:Key="CardFooter" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource BgBrush}"/>
+            <Setter Property="Padding" Value="14,0,6,0"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
+
+        <Style x:Key="BigButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Width" Value="210"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
+        <Style x:Key="OpenButton" TargetType="Button" BasedOn="{StaticResource BigButton}">
+            <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource SurfaceHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SaveButton" TargetType="Button" BasedOn="{StaticResource BigButton}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="Root">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============================================================ title bar -->
+        <Grid Grid.Row="0" Margin="22,0,12,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="32" Height="32" CornerRadius="10">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#67E8F9" Offset="0"/>
+                            <GradientStop Color="#0891B2" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <TextBlock Text="&#xE950;" Style="{StaticResource IconText}" FontSize="16" Foreground="{DynamicResource OnAccentBrush}" HorizontalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Bosch EDC15 EEPROM Tool" FontFamily="{StaticResource DisplayFont}" FontSize="15.5" FontWeight="SemiBold"
+                           Margin="12,0,0,0" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource Chip}" Background="{DynamicResource AccentTintBrush}" Margin="10,0,0,0" Padding="8,1">
+                    <TextBlock Text="{Binding AppVersion}" Style="{StaticResource ChipText}" FontSize="10.5" Foreground="{DynamicResource AccentBrush}"/>
+                </Border>
+            </StackPanel>
+
+            <Button Grid.Column="2" Style="{StaticResource GhostButton}" Command="{Binding AboutCommand}" Margin="0,0,10,0"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="About (F1)" AutomationProperties.Name="About">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE946;" Style="{StaticResource IconText}" FontSize="14"/>
+                    <TextBlock Text="About" Margin="8,0,0,0"/>
+                </StackPanel>
+            </Button>
+
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource TitleBarButton}" Content="&#xE921;" Click="Minimize_Click" Margin="0,0,4,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize" AutomationProperties.Name="Minimize"/>
+                <Button Style="{StaticResource CloseButton}" Content="&#xE8BB;" Click="Close_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close" AutomationProperties.Name="Close"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ============================================================ content -->
+        <Grid Grid.Row="1" Margin="22,2,22,16" IsEnabled="{Binding IsContentEnabled}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="18"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ======================== selected file -->
+            <Border Style="{StaticResource Card}" Padding="20,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconBadge}" Width="48" Height="48" CornerRadius="14" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8A5;" Style="{StaticResource IconText}" FontSize="20" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <Grid Grid.Column="1" Margin="16,0,16,0" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="8"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Selected file" Style="{StaticResource Caption}" FontSize="13" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" FontWeight="SemiBold" FontSize="14.5" TextTrimming="CharacterEllipsis" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{Binding FileName}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasFile}" Value="False">
+                                            <Setter Property="Text" Value="No file selected"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFaintBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Grid.Row="2" Text="File location" Style="{StaticResource Caption}" FontSize="13" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" FontSize="13" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding FilePath}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="{Binding FilePath}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasFile}" Value="False">
+                                            <Setter Property="Text" Value="Open a 512-byte EEPROM file, or drag it onto this window"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFaintBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    <!-- vehicle data -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                                Visibility="{Binding HasFile, Converter={StaticResource BoolToVis}}">
+                        <Border Width="1" Background="{DynamicResource BorderBrush}" Margin="0,2,20,2"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="VIN" Style="{StaticResource Caption}" FontSize="12"/>
+                            <TextBlock Text="{Binding Vin}" FontFamily="{StaticResource MonoFont}" FontSize="13.5" Margin="0,3,0,10"/>
+                            <TextBlock Text="Immobilizer ID" Style="{StaticResource Caption}" FontSize="12"/>
+                            <TextBlock Text="{Binding ImmobilizerId}" FontFamily="{StaticResource MonoFont}" FontSize="13.5" Margin="0,3,0,0"/>
+                        </StackPanel>
+                        <Border Width="34" Height="34" CornerRadius="11" Background="{DynamicResource WarningTintBrush}" Margin="18,0,0,0"
+                                VerticalAlignment="Center" ToolTip="{Binding WarningSummary}"
+                                Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="&#xE7BA;" Style="{StaticResource IconText}" FontSize="15" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ======================== the three values -->
+            <Grid Grid.Row="2" IsEnabled="{Binding HasFile}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- login code -->
+                <Border Style="{StaticResource Card}" Height="230" Padding="18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource IconBadge}" Background="{DynamicResource LoginCodeTintBrush}">
+                                    <TextBlock Text="&#xE8D7;" Style="{StaticResource IconText}" Foreground="{DynamicResource LoginCodeBrush}" HorizontalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Login Code" Style="{StaticResource CardHeader}" Margin="12,0,0,0"/>
+                            </StackPanel>
+                            <Border Style="{StaticResource ChangedPill}" Visibility="{Binding IsLoginCodeModified, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Changed" Style="{StaticResource ChipText}" FontSize="11" Foreground="{DynamicResource AccentBrush}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1" VerticalAlignment="Center">
+                            <TextBox Style="{StaticResource ValueInput}" MaxLength="5"
+                                     Text="{Binding LoginCodeText, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="Login code"
+                                     Visibility="{Binding HasFile, Converter={StaticResource BoolToVis}}"
+                                     b:InputAssist.DigitsOnly="True"
+                                     b:InputAssist.LeadingZero="True"
+                                     b:InputAssist.HasError="{Binding LoginCodeError, Converter={StaticResource HasValue}}"/>
+                            <TextBlock Text="– – – – –" FontSize="30" Foreground="{DynamicResource BorderStrongBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="{Binding HasFile, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                        </Grid>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardFooter}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            Visibility="{Binding LoginCodeError, Converter={StaticResource HasValueToVis}, ConverterParameter=Invert}">
+                                    <TextBlock Text="Original value" Style="{StaticResource Caption}" FontSize="12.5"/>
+                                    <TextBlock Text="{Binding LoginCodeOriginalText}" FontSize="12.5" FontWeight="SemiBold" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding LoginCodeError}" Style="{StaticResource Caption}" FontSize="12.5" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center"
+                                           Visibility="{Binding LoginCodeError, Converter={StaticResource HasValueToVis}}"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE7A7;" Command="{Binding ResetLoginCodeCommand}" ToolTip="Restore the original login code"
+                                            Visibility="{Binding CanResetLoginCode, Converter={StaticResource BoolToVis}}" AutomationProperties.Name="Restore the original login code"/>
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE8C8;" Command="{Binding CopyLoginCodeCommand}" ToolTip="Copy the login code" AutomationProperties.Name="Copy the login code"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- immobilizer -->
+                <Border Grid.Column="2" Style="{StaticResource Card}" Height="230" Padding="18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource IconBadge}" Background="{DynamicResource ImmoTintBrush}">
+                                    <TextBlock Text="&#xE72E;" Style="{StaticResource IconText}" Foreground="{DynamicResource ImmoBrush}" HorizontalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Immo Status" Style="{StaticResource CardHeader}" Margin="12,0,0,0"/>
+                            </StackPanel>
+                            <Border Style="{StaticResource ChangedPill}" Visibility="{Binding IsImmoModified, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Changed" Style="{StaticResource ChipText}" FontSize="11" Foreground="{DynamicResource AccentBrush}"/>
+                            </Border>
+                        </Grid>
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding ImmoStatusText}" FontFamily="{StaticResource DisplayFont}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFaintBrush}"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasFile}" Value="True"/>
+                                                    <Condition Binding="{Binding IsImmoOn}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasFile}" Value="True"/>
+                                                    <Condition Binding="{Binding IsImmoOn}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding IsImmoOn}" HorizontalAlignment="Center" Margin="0,14,0,0"
+                                      AutomationProperties.Name="Immobilizer">
+                                <CheckBox.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.25" ScaleY="1.25"/>
+                                </CheckBox.LayoutTransform>
+                            </CheckBox>
+                        </StackPanel>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardFooter}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="Original value" Style="{StaticResource Caption}" FontSize="12.5"/>
+                                    <TextBlock Text="{Binding ImmoOriginalText}" FontSize="12.5" FontWeight="SemiBold" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <Button Style="{StaticResource IconButton}" Content="&#xE7A7;" Command="{Binding ResetImmoCommand}" HorizontalAlignment="Right"
+                                        ToolTip="Restore the original setting" Visibility="{Binding IsImmoModified, Converter={StaticResource BoolToVis}}" AutomationProperties.Name="Restore the original setting"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- odometer -->
+                <Border Grid.Column="4" Style="{StaticResource Card}" Height="230" Padding="18">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Style="{StaticResource IconBadge}" Background="{DynamicResource OdometerTintBrush}">
+                                    <TextBlock Text="&#xEC4A;" Style="{StaticResource IconText}" Foreground="{DynamicResource OdometerBrush}" HorizontalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Odometer" Style="{StaticResource CardHeader}" Margin="12,0,0,0"/>
+                            </StackPanel>
+                            <Border Style="{StaticResource ChangedPill}" Visibility="{Binding IsMileageModified, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="Changed" Style="{StaticResource ChipText}" FontSize="11" Foreground="{DynamicResource AccentBrush}"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                                        Visibility="{Binding HasFile, Converter={StaticResource BoolToVis}}">
+                                <TextBox Style="{StaticResource ValueInput}" MaxLength="7"
+                                         Text="{Binding MileageText, UpdateSourceTrigger=PropertyChanged}"
+                                         AutomationProperties.Name="Mileage in kilometres"
+                                         b:InputAssist.DigitsOnly="True"
+                                         b:InputAssist.HasError="{Binding MileageError, Converter={StaticResource HasValue}}"/>
+                                <TextBlock Text="km" FontFamily="{StaticResource DisplayFont}" FontSize="20" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="2,6,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="– – – – – –" FontSize="30" Foreground="{DynamicResource BorderStrongBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="{Binding HasFile, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                        </Grid>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardFooter}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            Visibility="{Binding MileageError, Converter={StaticResource HasValueToVis}, ConverterParameter=Invert}">
+                                    <TextBlock Text="Original value" Style="{StaticResource Caption}" FontSize="12.5"/>
+                                    <TextBlock Text="{Binding MileageOriginalText}" FontSize="12.5" FontWeight="SemiBold" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding MileageError}" Style="{StaticResource Caption}" FontSize="12.5" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center"
+                                           Visibility="{Binding MileageError, Converter={StaticResource HasValueToVis}}"/>
+                                <Button Style="{StaticResource IconButton}" Content="&#xE7A7;" Command="{Binding ResetMileageCommand}" HorizontalAlignment="Right"
+                                        ToolTip="Restore the original mileage" Visibility="{Binding CanResetMileage, Converter={StaticResource BoolToVis}}" AutomationProperties.Name="Restore the original mileage"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ======================== open and save -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Style="{StaticResource OpenButton}" Command="{Binding OpenCommand}" ToolTip="Open an EEPROM file (Ctrl+O)" AutomationProperties.Name="Open an EEPROM file">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE838;" Style="{StaticResource IconText}" FontSize="18"/>
+                        <TextBlock Text="Open File" Margin="12,0,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource SaveButton}" Command="{Binding SaveCommand}" Margin="20,0,0,0" ToolTip="Save the changes to a new file (Ctrl+S)" AutomationProperties.Name="Save the changes to a new file">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE74E;" Style="{StaticResource IconText}" FontSize="18"/>
+                        <TextBlock Text="Save File" Margin="12,0,0,0"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- ======================== footer -->
+            <Grid Grid.Row="4">
+                <Button Style="{StaticResource GhostButton}" Command="{Binding OpenLinkCommand}" CommandParameter="https://www.paypal.com/donate/?hosted_button_id=SAAH5GHAH6T72"
+                        HorizontalAlignment="Left" Padding="10,0" ToolTip="Support the project" AutomationProperties.Name="Support the project">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xEB51;" Style="{StaticResource IconText}" FontSize="13" Foreground="#F472B6"/>
+                        <TextBlock Text="Donate" Margin="8,0,0,0" FontSize="13"/>
+                    </StackPanel>
+                </Button>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{DynamicResource TextFaintBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasFile}" Value="True">
+                                        <Setter Property="Fill" Value="{DynamicResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsModified}" Value="True">
+                                        <Setter Property="Fill" Value="{DynamicResource AccentBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasErrors}" Value="True">
+                                        <Setter Property="Fill" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding StatusText}" Style="{StaticResource Caption}" FontSize="13" Margin="9,0,0,0" VerticalAlignment="Center"/>
+                    <Button Style="{StaticResource GhostButton}" Command="{Binding RevertCommand}" Content="Undo all" FontSize="13" Height="30" Padding="10,0" Margin="8,0,0,0"
+                            Foreground="{DynamicResource AccentBrush}" ToolTip="Undo all changes"
+                            Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={StaticResource BoolToVis}}" AutomationProperties.Name="Undo all changes"/>
+                </StackPanel>
+
+                <Button Style="{StaticResource IconButton}" Width="38" Height="38" HorizontalAlignment="Right" ToolTip="Source code on GitHub"
+                        Command="{Binding OpenLinkCommand}" CommandParameter="https://github.com/muki01/Bosch_EDC15_EEPROM_Tool" AutomationProperties.Name="Source code on GitHub">
+                    <Viewbox Width="20" Height="20">
+                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              Data="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    </Viewbox>
+                </Button>
+            </Grid>
+        </Grid>
+
+        <!-- ============================================================ drop hint -->
+        <Border x:Name="DropHint" Grid.Row="1" Margin="14,0,14,14" CornerRadius="22" Visibility="Collapsed" IsHitTestVisible="False"
+                Background="{DynamicResource DropHintBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="&#xE898;" Style="{StaticResource IconText}" FontSize="40" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Drop to open the file" FontFamily="{StaticResource DisplayFont}" FontSize="20" FontWeight="SemiBold" Margin="0,16,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ============================================================ toast -->
+        <Border Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="24,0,24,74"
+                MaxWidth="480" CornerRadius="14" Padding="16,12,10,12" BorderThickness="1"
+                Background="{DynamicResource SurfaceRaisedBrush}" BorderBrush="{DynamicResource BorderStrongBrush}"
+                Visibility="{Binding IsToastVisible, Converter={StaticResource BoolToVis}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="28" ShadowDepth="6" Opacity="0.45" Color="{DynamicResource ShadowColor}"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Top">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{DynamicResource AccentTintBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ToastKind}" Value="Success">
+                                    <Setter Property="Background" Value="{DynamicResource SuccessTintBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ToastKind}" Value="Error">
+                                    <Setter Property="Background" Value="{DynamicResource DangerTintBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock HorizontalAlignment="Center" FontSize="12" FontWeight="Bold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource IconText}">
+                                <Setter Property="Text" Value="&#xE946;"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ToastKind}" Value="Success">
+                                        <Setter Property="Text" Value="&#xE73E;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ToastKind}" Value="Error">
+                                        <Setter Property="Text" Value="&#xE783;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+                <TextBlock Grid.Column="1" Text="{Binding ToastMessage}" TextWrapping="Wrap" Margin="12,3,8,0" FontSize="13.5"/>
+                <Button Grid.Column="2" Style="{StaticResource TitleBarButton}" Width="28" Height="28" VerticalAlignment="Top"
+                        Content="&#xE711;" Command="{Binding DismissToastCommand}" ToolTip="Dismiss" AutomationProperties.Name="Dismiss"/>
+            </Grid>
+        </Border>
+
+        <!-- ============================================================ about -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource OverlayBrush}"
+              Visibility="{Binding IsAboutOpen, Converter={StaticResource BoolToVis}}">
+            <Border Width="500" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="22" Padding="30,28"
+                    Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" ShadowDepth="10" Opacity="0.5" Color="{DynamicResource ShadowColor}"/>
+                </Border.Effect>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="52" Height="52" CornerRadius="16">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#67E8F9" Offset="0"/>
+                                    <GradientStop Color="#0891B2" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <TextBlock Text="&#xE950;" Style="{StaticResource IconText}" FontSize="24" Foreground="{DynamicResource OnAccentBrush}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Bosch EDC15 EEPROM Tool" FontFamily="{StaticResource DisplayFont}" FontSize="22" FontWeight="SemiBold"/>
+                            <TextBlock Style="{StaticResource Caption}" FontSize="13">
+                                <Run Text="{Binding AppVersion, Mode=OneWay}"/><Run Text=" · by Muksin Muksin"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Style="{StaticResource Caption}" FontSize="13.5" Foreground="{DynamicResource TextBrush}" Margin="0,22,0,0" LineHeight="21"
+                               Text="Changes the login code, immobilizer and mileage in the 24C04 EEPROM file (512 bytes) of VAG Bosch EDC15 diesel ECUs (EDC15P, EDC15P+, EDC15VM+) as used by Audi, Volkswagen, SEAT and Škoda."/>
+
+                    <Border CornerRadius="14" Background="{DynamicResource WarningTintBrush}" Padding="16,13" Margin="0,20,0,0">
+                        <TextBlock Style="{StaticResource Caption}" FontSize="12.5" Foreground="{DynamicResource TextBrush}" LineHeight="19"
+                                   Text="Always keep the original file. Correct the mileage only to match a replaced instrument cluster or ECU; changing it to mislead a buyer is illegal in most countries. The author accepts no responsibility for damage to ECUs or vehicles."/>
+                    </Border>
+
+                    <WrapPanel Margin="0,22,0,0">
+                        <Button Style="{StaticResource SecondaryButton}" Command="{Binding OpenLinkCommand}" CommandParameter="https://github.com/muki01/Bosch_EDC15_EEPROM_Tool" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE943;" Style="{StaticResource IconText}" FontSize="14"/>
+                                <TextBlock Text="Source code" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SecondaryButton}" Command="{Binding OpenLinkCommand}" CommandParameter="https://www.paypal.com/donate/?hosted_button_id=SAAH5GHAH6T72" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xEB51;" Style="{StaticResource IconText}" FontSize="14" Foreground="#F472B6"/>
+                                <TextBlock Text="Donate" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SecondaryButton}" Command="{Binding OpenLinkCommand}" CommandParameter="mailto:muksin.muksin04@gmail.com">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE715;" Style="{StaticResource IconText}" FontSize="14"/>
+                                <TextBlock Text="Contact" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+
+                    <Grid Margin="0,24,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                            <TextBlock Text="GPL-3.0 · commercial license on request" Style="{StaticResource Caption}" FontSize="12"/>
+                            <TextBlock Text="© 2026 Muksin Muksin" Style="{StaticResource Caption}" FontSize="12" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource PrimaryButton}" Content="Close" Width="110"
+                                Command="{Binding CloseOverlayCommand}" IsCancel="True"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================ confirmation -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource OverlayBrush}"
+              Visibility="{Binding IsConfirmationOpen, Converter={StaticResource BoolToVis}}">
+            <Border Width="420" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="22" Padding="28,26"
+                    Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" ShadowDepth="10" Opacity="0.5" Color="{DynamicResource ShadowColor}"/>
+                </Border.Effect>
+                <StackPanel>
+                    <Border Width="46" Height="46" CornerRadius="15" Background="{DynamicResource WarningTintBrush}" HorizontalAlignment="Left">
+                        <TextBlock Text="&#xE7BA;" Style="{StaticResource IconText}" FontSize="20" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{Binding Confirmation.Title}" FontFamily="{StaticResource DisplayFont}" FontSize="19" FontWeight="SemiBold" Margin="0,18,0,6"/>
+                    <TextBlock Text="{Binding Confirmation.Message}" Style="{StaticResource Caption}" FontSize="13.5"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,26,0,0">
+                        <Button Style="{StaticResource SecondaryButton}" Content="Cancel" Width="110" Command="{Binding CloseOverlayCommand}"/>
+                        <Button Style="{StaticResource DangerButton}" Content="{Binding Confirmation.ConfirmText}" MinWidth="110" Margin="10,0,0,0"
+                                Command="{Binding ConfirmCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

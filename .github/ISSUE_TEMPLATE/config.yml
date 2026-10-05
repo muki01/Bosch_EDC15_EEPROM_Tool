@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security issue
+    url: https://github.com/muki01/Bosch_EDC15_EEPROM_Tool/security/policy
+    about: Please report security problems privately, not in a public issue.
+  - name: 🔧 Live diagnostics of EDC15 ECUs
+    url: https://github.com/muki01/VAG_KW1281
+    about: Read measuring groups and fault codes over the K-Line with VAG KW1281.
+  - name: 💼 Commercial license or custom development
+    url: mailto:muksin.muksin04@gmail.com
+    about: Need the tool in a closed-source product, or a custom ECU tool? Get in touch.

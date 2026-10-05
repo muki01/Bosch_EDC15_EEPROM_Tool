@@ -1,0 +1,16 @@
+# Normalise line endings of text files
+* text=auto
+
+*.cs      text diff=csharp
+*.xaml    text
+*.csproj  text
+*.md      text
+*.yml     text
+*.svg     text
+*.sln     text eol=crlf
+
+# EEPROM dumps and images must never be changed by Git
+*.bin     binary
+*.png     binary
+*.jpg     binary
+*.ico     binary

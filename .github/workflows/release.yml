@@ -1,0 +1,59 @@
+name: Release
+
+# Push a tag such as v1.1.0 to build, test and publish a release.
+# The tag must match <Version> in the project file.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Check that the tag matches the project version
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          $projectVersion = (Select-Xml -Path src/Edc15EepromTool/Edc15EepromTool.csproj -XPath '//Version').Node.InnerText
+          if ($projectVersion -ne $version) {
+            Write-Error "The tag ($version) does not match <Version> in the project file ($projectVersion)."
+            exit 1
+          }
+
+      - name: Test
+        run: dotnet test -c Release
+
+      - name: Publish the executable
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          dotnet publish src/Edc15EepromTool -c Release -o out
+
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item 'out/EDC15 EEPROM Tool.exe' "dist/EDC15-EEPROM-Tool-$tag.exe"
+
+          Get-ChildItem dist/*.exe | Get-FileHash -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
+            Out-File dist/SHA256SUMS.txt -Encoding ascii
+
+      - name: Create the GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          gh release create $tag (Get-ChildItem dist).FullName --title "EDC15 EEPROM Tool $tag" --generate-notes

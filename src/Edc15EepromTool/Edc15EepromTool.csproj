@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>Edc15EepromTool</RootNamespace>
+    <AssemblyName>EDC15 EEPROM Tool</AssemblyName>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <Product>EDC15 EEPROM Tool</Product>
+    <Description>Reads and edits 512-byte 24C04 EEPROM dumps of Bosch EDC15 engine control units.</Description>
+    <Company>Muksin Muksin</Company>
+    <Authors>Muksin Muksin</Authors>
+    <Copyright>Copyright © 2026 Muksin Muksin</Copyright>
+    <Version>1.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Edc15EepromTool.Tests" />
+  </ItemGroup>
+
+</Project>
