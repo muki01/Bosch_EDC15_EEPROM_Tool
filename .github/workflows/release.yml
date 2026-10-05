@@ -46,9 +46,10 @@ jobs:
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item 'out/EDC15 EEPROM Tool.exe' "dist/EDC15-EEPROM-Tool-$tag.exe"
 
-          Get-ChildItem dist/*.exe | Get-FileHash -Algorithm SHA256 |
-            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
-            Out-File dist/SHA256SUMS.txt -Encoding ascii
+          # LF line endings, so "sha256sum -c SHA256SUMS.txt" also works on Linux and macOS
+          $sums = Get-ChildItem dist/*.exe | Get-FileHash -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" }
+          [IO.File]::WriteAllText("$PWD/dist/SHA256SUMS.txt", ($sums -join "`n") + "`n")
 
       - name: Create the GitHub release
         shell: pwsh
