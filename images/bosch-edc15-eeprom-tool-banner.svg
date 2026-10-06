@@ -26,18 +26,20 @@
     <rect width="1280" height="480" fill="url(#glow2)"/>
 
     <!-- left column -->
-    <circle class="live" cx="69" cy="92" r="4.5" fill="#34d399"/>
-    <text x="82" y="96" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="13" letter-spacing="2.4" fill="#22d3ee">WINDOWS DESKTOP TOOL</text>
-    <text x="60" y="182" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="84" font-weight="800" letter-spacing="-2" fill="#f8fafc">EDC15</text>
-    <text x="60" y="262" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="84" font-weight="800" letter-spacing="-2" fill="url(#title)">EEPROM Tool</text>
-    <text font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="23" fill="#cbd5e1">
-      <tspan x="64" y="312">Immobilizer, mileage and login code</tspan>
-      <tspan x="64" y="343">of Bosch EDC15 ECUs, in one clean app.</tspan>
+    <text x="64" y="77" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="18" letter-spacing="2.9" fill="#22d3ee">WINDOWS DESKTOP TOOL</text>
+    <text x="60" y="144" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="70" font-weight="800" letter-spacing="-1.8" fill="#f8fafc">EDC15</text>
+    <text x="60" y="218" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="70" font-weight="800" letter-spacing="-1.8" fill="url(#title)">EEPROM Tool</text>
+    <text font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="27" fill="#cbd5e1">
+      <tspan x="64" y="272">Immobilizer, mileage and login code</tspan>
+      <tspan x="64" y="310">of Bosch EDC15 ECUs, in one clean app.</tspan>
     </text>
-    <rect x="64" y="370" width="71" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14"/><text x="99.5" y="391" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="14" fill="#cbd5e1">24C04</text>
-    <rect x="145" y="370" width="140" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14"/><text x="215.0" y="391" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="14" fill="#cbd5e1">512-byte .bin</text>
-    <rect x="295" y="370" width="131" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14"/><text x="360.5" y="391" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="14" fill="#cbd5e1">light · dark</text>
-    <text x="64" y="438" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="13" letter-spacing="2" fill="#64748b">VAG · AUDI · VW · SEAT · SKODA</text>
+    <rect x="64" y="338" width="79" height="34" rx="17" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14"/>
+    <text x="103.5" y="360.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="16.5" fill="#cbd5e1">24C04</text>
+    <rect x="151" y="338" width="160" height="34" rx="17" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14"/>
+    <text x="231" y="360.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="16.5" fill="#cbd5e1">512-byte .bin</text>
+    <rect x="319" y="338" width="150" height="34" rx="17" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14"/>
+    <text x="394" y="360.5" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="16.5" fill="#cbd5e1">light · dark</text>
+    <text x="64" y="413" font-family="ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace" font-size="16" fill="#8a97ab">VAG · Audi · VW · SEAT · Škoda</text>
 
     <!-- right column: the program in its light and dark theme -->
     <g class="fb">
